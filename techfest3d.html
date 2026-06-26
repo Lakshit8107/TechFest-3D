@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TECHFEST 2026 — Future Unlocked</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --cyan:#00f5ff;
+    --magenta:#ff006e;
+    --gold:#ffd60a;
+    --white:#ffffff;
+    --dark:#04060d;
+    --dark2:#080c1a;
+    --glass:rgba(255,255,255,0.04);
+    --glass-border:rgba(255,255,255,0.1);
+  }
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--dark);
+    color:var(--white);
+    font-family:'Courier New',monospace;
+    overflow-x:hidden;
+  }
+  #canvas-bg{
+    position:fixed;top:0;left:0;width:100%;height:100%;
+    z-index:0;pointer-events:none;
+  }
+  nav{
+    position:fixed;top:0;left:0;right:0;z-index:100;
+    padding:1.2rem 3rem;
+    display:flex;justify-content:space-between;align-items:center;
+    background:rgba(4,6,13,0.7);
+    backdrop-filter:blur(20px);
+    border-bottom:1px solid var(--glass-border);
+  }
+  .logo{
+    font-size:1.4rem;font-weight:700;letter-spacing:0.3em;
+    color:var(--cyan);text-transform:uppercase;
+    text-shadow:0 0 20px var(--cyan);
+  }
+  .nav-links{display:flex;gap:2.5rem;list-style:none}
+  .nav-links a{
+    color:rgba(255,255,255,0.6);text-decoration:none;
+    font-size:0.75rem;letter-spacing:0.15em;text-transform:uppercase;
+    transition:color 0.3s;
+  }
+  .nav-links a:hover{color:var(--cyan)}
+  .nav-cta{
+    background:transparent;border:1px solid var(--cyan);
+    color:var(--cyan);padding:0.5rem 1.4rem;
+    font-family:'Courier New',monospace;font-size:0.75rem;
+    letter-spacing:0.15em;text-transform:uppercase;cursor:pointer;
+    transition:all 0.3s;
+  }
+  .nav-cta:hover{background:var(--cyan);color:var(--dark)}
+  section{position:relative;z-index:10}
+  /* HERO */
+  #hero{
+    height:100vh;display:flex;flex-direction:column;
+    justify-content:center;align-items:center;
+    text-align:center;padding:2rem;
+  }
+  .hero-eyebrow{
+    font-size:0.7rem;letter-spacing:0.4em;text-transform:uppercase;
+    color:var(--cyan);margin-bottom:1.5rem;
+    border:1px solid rgba(0,245,255,0.3);padding:0.4rem 1.2rem;
+    display:inline-block;
+  }
+  .hero-title{
+    font-family:'Courier New',monospace;
+    font-size:clamp(3rem,10vw,8rem);
+    font-weight:700;line-height:0.9;
+    text-transform:uppercase;letter-spacing:-0.02em;
+    margin-bottom:0.5rem;
+  }
+  .hero-title .line1{
+    display:block;
+    background:linear-gradient(135deg,#fff 0%,rgba(255,255,255,0.5) 100%);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  }
+  .hero-title .line2{
+    display:block;
+    background:linear-gradient(135deg,var(--cyan) 0%,var(--magenta) 100%);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+    text-shadow:none;
+  }
+  .hero-year{
+    font-size:clamp(1rem,3vw,2rem);
+    color:rgba(255,255,255,0.15);
+    letter-spacing:0.5em;margin-bottom:2rem;
+  }
+  .hero-sub{
+    font-size:0.85rem;color:rgba(255,255,255,0.4);
+    letter-spacing:0.1em;margin-bottom:3rem;max-width:500px;
+  }
+  .hero-btns{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap}
+  .btn-primary{
+    background:var(--cyan);color:var(--dark);
+    padding:0.9rem 2.5rem;font-family:'Courier New',monospace;
+    font-weight:700;font-size:0.8rem;letter-spacing:0.2em;
+    text-transform:uppercase;border:none;cursor:pointer;
+    clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);
+    transition:all 0.3s;
+  }
+  .btn-primary:hover{background:var(--gold);transform:translateY(-2px)}
+  .btn-secondary{
+    background:transparent;color:var(--white);
+    padding:0.9rem 2.5rem;font-family:'Courier New',monospace;
+    font-size:0.8rem;letter-spacing:0.2em;text-transform:uppercase;
+    border:1px solid rgba(255,255,255,0.3);cursor:pointer;transition:all 0.3s;
+  }
+  .btn-secondary:hover{border-color:var(--magenta);color:var(--magenta)}
+  .scroll-hint{
+    position:absolute;bottom:2.5rem;left:50%;transform:translateX(-50%);
+    display:flex;flex-direction:column;align-items:center;gap:0.5rem;
+    color:rgba(255,255,255,0.25);font-size:0.65rem;letter-spacing:0.3em;
+  }
+  .scroll-line{
+    width:1px;height:50px;
+    background:linear-gradient(to bottom,rgba(0,245,255,0.6),transparent);
+    animation:scrollpulse 2s ease-in-out infinite;
+  }
+  @keyframes scrollpulse{
+    0%,100%{opacity:0.3;transform:scaleY(1)}
+    50%{opacity:1;transform:scaleY(1.2)}
+  }
+  /* STATS BAR */
+  .stats-bar{
+    border-top:1px solid var(--glass-border);
+    border-bottom:1px solid var(--glass-border);
+    background:rgba(0,245,255,0.03);
+    padding:1.5rem 3rem;
+    display:flex;justify-content:center;gap:5rem;flex-wrap:wrap;
+  }
+  .stat-item{text-align:center}
+  .stat-num{
+    font-size:2rem;font-weight:700;
+    background:linear-gradient(135deg,var(--cyan),var(--magenta));
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  }
+  .stat-label{font-size:0.65rem;letter-spacing:0.25em;color:rgba(255,255,255,0.35);text-transform:uppercase;margin-top:0.2rem}
+  /* SPEAKERS */
+  #speakers{padding:8rem 3rem}
+  .section-header{text-align:center;margin-bottom:5rem}
+  .section-eyebrow{
+    font-size:0.65rem;letter-spacing:0.4em;color:var(--magenta);
+    text-transform:uppercase;margin-bottom:1rem;display:block;
+  }
+  .section-title{
+    font-size:clamp(2rem,5vw,4rem);font-weight:700;
+    text-transform:uppercase;letter-spacing:0.05em;
+    background:linear-gradient(135deg,#fff,rgba(255,255,255,0.4));
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  }
+  .speakers-grid{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+    gap:1.5rem;max-width:1200px;margin:0 auto;
+  }
+  .speaker-card{
+    border:1px solid var(--glass-border);
+    background:var(--glass);
+    padding:2rem;position:relative;overflow:hidden;
+    transition:transform 0.4s,border-color 0.4s;cursor:default;
+    clip-path:polygon(0 0,calc(100% - 20px) 0,100% 20px,100% 100%,0 100%);
+  }
+  .speaker-card::before{
+    content:'';position:absolute;top:0;left:0;right:0;height:1px;
+    background:linear-gradient(90deg,transparent,var(--cyan),transparent);
+    opacity:0;transition:opacity 0.4s;
+  }
+  .speaker-card:hover{transform:translateY(-8px);border-color:rgba(0,245,255,0.4)}
+  .speaker-card:hover::before{opacity:1}
+  .speaker-avatar{
+    width:64px;height:64px;border-radius:50%;margin-bottom:1.2rem;
+    border:2px solid var(--glass-border);
+    display:flex;align-items:center;justify-content:center;
+    font-size:1.5rem;font-weight:700;
+    background:rgba(0,245,255,0.08);
+    color:var(--cyan);
+  }
+  .speaker-tag{
+    font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;
+    color:var(--magenta);margin-bottom:0.5rem;
+  }
+  .speaker-name{font-size:1.1rem;font-weight:700;margin-bottom:0.25rem}
+  .speaker-role{font-size:0.75rem;color:rgba(255,255,255,0.4);margin-bottom:1rem}
+  .speaker-topic{font-size:0.8rem;color:rgba(255,255,255,0.6);line-height:1.5}
+  .corner-cut{
+    position:absolute;top:0;right:0;
+    width:20px;height:20px;
+    background:var(--dark2);
+  }
+  /* AGENDA */
+  #agenda{padding:6rem 3rem;background:rgba(0,0,0,0.3)}
+  .agenda-container{max-width:900px;margin:0 auto}
+  .day-tab{
+    display:flex;gap:1rem;margin-bottom:3rem;
+    border-bottom:1px solid var(--glass-border);padding-bottom:1rem;
+  }
+  .day-btn{
+    background:transparent;border:none;color:rgba(255,255,255,0.3);
+    font-family:'Courier New',monospace;font-size:0.75rem;
+    letter-spacing:0.2em;text-transform:uppercase;cursor:pointer;
+    padding:0.5rem 1rem;transition:all 0.3s;position:relative;
+  }
+  .day-btn.active{color:var(--cyan)}
+  .day-btn.active::after{
+    content:'';position:absolute;bottom:-1.06rem;left:0;right:0;
+    height:1px;background:var(--cyan);
+  }
+  .agenda-day{display:none}
+  .agenda-day.active{display:block}
+  .agenda-item{
+    display:flex;gap:2rem;padding:1.5rem 0;
+    border-bottom:1px solid var(--glass-border);
+    transition:background 0.2s;position:relative;
+  }
+  .agenda-item::after{
+    content:'';position:absolute;left:0;top:0;bottom:0;width:2px;
+    background:transparent;transition:background 0.3s;
+  }
+  .agenda-item:hover::after{background:var(--cyan)}
+  .agenda-time{
+    font-size:0.7rem;letter-spacing:0.1em;color:var(--cyan);
+    min-width:80px;padding-top:0.2rem;
+  }
+  .agenda-content{flex:1}
+  .agenda-track{
+    font-size:0.6rem;letter-spacing:0.25em;text-transform:uppercase;
+    color:var(--magenta);margin-bottom:0.3rem;
+  }
+  .agenda-talk{font-size:0.95rem;font-weight:700;margin-bottom:0.2rem}
+  .agenda-speaker{font-size:0.75rem;color:rgba(255,255,255,0.4)}
+  /* 3D SHOWCASE */
+  #showcase{
+    padding:8rem 3rem;
+    text-align:center;
+  }
+  .showcase-canvas-wrap{
+    width:100%;max-width:900px;margin:3rem auto 0;
+    height:400px;position:relative;border:1px solid var(--glass-border);
+    background:var(--glass);overflow:hidden;
+  }
+  #showcase-canvas{width:100%;height:100%;display:block}
+  .showcase-controls{
+    display:flex;justify-content:center;gap:1rem;margin-top:1.5rem;flex-wrap:wrap;
+  }
+  .ctrl-btn{
+    background:transparent;border:1px solid rgba(255,255,255,0.2);
+    color:rgba(255,255,255,0.5);font-family:'Courier New',monospace;
+    font-size:0.7rem;letter-spacing:0.15em;text-transform:uppercase;
+    padding:0.5rem 1.2rem;cursor:pointer;transition:all 0.3s;
+  }
+  .ctrl-btn:hover,.ctrl-btn.active{border-color:var(--cyan);color:var(--cyan)}
+  /* TICKETS */
+  #tickets{padding:8rem 3rem;background:rgba(0,0,0,0.4)}
+  .tickets-grid{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+    gap:1.5rem;max-width:1000px;margin:3rem auto 0;
+  }
+  .ticket-card{
+    border:1px solid var(--glass-border);background:var(--glass);
+    padding:2.5rem 2rem;position:relative;overflow:hidden;transition:all 0.4s;
+  }
+  .ticket-card.featured{border-color:rgba(0,245,255,0.4)}
+  .ticket-card.featured::before{
+    content:'';position:absolute;top:0;left:0;right:0;height:2px;
+    background:linear-gradient(90deg,var(--cyan),var(--magenta));
+  }
+  .ticket-badge{
+    position:absolute;top:1rem;right:1rem;
+    background:rgba(0,245,255,0.15);border:1px solid rgba(0,245,255,0.3);
+    color:var(--cyan);font-size:0.55rem;letter-spacing:0.2em;
+    text-transform:uppercase;padding:0.25rem 0.6rem;
+  }
+  .ticket-tier{font-size:0.65rem;letter-spacing:0.3em;color:rgba(255,255,255,0.3);text-transform:uppercase;margin-bottom:0.5rem}
+  .ticket-price{
+    font-size:3rem;font-weight:700;margin-bottom:0.3rem;
+    background:linear-gradient(135deg,#fff,rgba(255,255,255,0.6));
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  }
+  .ticket-price span{font-size:1rem;opacity:0.4}
+  .ticket-desc{font-size:0.75rem;color:rgba(255,255,255,0.35);margin-bottom:2rem}
+  .ticket-features{list-style:none;margin-bottom:2rem}
+  .ticket-features li{
+    font-size:0.78rem;color:rgba(255,255,255,0.55);
+    padding:0.5rem 0;border-bottom:1px solid var(--glass-border);
+    display:flex;align-items:center;gap:0.6rem;
+  }
+  .ticket-features li::before{content:'▹';color:var(--cyan);font-size:0.7rem}
+  .ticket-btn{
+    width:100%;background:transparent;
+    border:1px solid rgba(255,255,255,0.2);
+    color:rgba(255,255,255,0.6);font-family:'Courier New',monospace;
+    font-size:0.75rem;letter-spacing:0.2em;text-transform:uppercase;
+    padding:0.85rem;cursor:pointer;transition:all 0.3s;
+  }
+  .ticket-card.featured .ticket-btn{
+    background:var(--cyan);border-color:var(--cyan);
+    color:var(--dark);font-weight:700;
+  }
+  .ticket-btn:hover{background:var(--gold);border-color:var(--gold);color:var(--dark)}
+  /* FOOTER */
+  footer{
+    padding:4rem 3rem 2rem;border-top:1px solid var(--glass-border);
+    text-align:center;
+  }
+  .footer-logo{
+    font-size:2rem;font-weight:700;letter-spacing:0.3em;
+    color:var(--cyan);text-shadow:0 0 30px var(--cyan);
+    margin-bottom:1.5rem;
+  }
+  .footer-links{display:flex;justify-content:center;gap:2rem;flex-wrap:wrap;margin-bottom:2rem}
+  .footer-links a{
+    color:rgba(255,255,255,0.3);text-decoration:none;
+    font-size:0.7rem;letter-spacing:0.2em;text-transform:uppercase;
+    transition:color 0.3s;
+  }
+  .footer-links a:hover{color:var(--cyan)}
+  .footer-copy{font-size:0.65rem;color:rgba(255,255,255,0.15);letter-spacing:0.15em}
+  /* SCROLL ANIMATIONS */
+  .reveal{opacity:0;transform:translateY(40px);transition:opacity 0.8s,transform 0.8s}
+  .reveal.visible{opacity:1;transform:translateY(0)}
+  /* PARTICLE COUNTER */
+  .hud{
+    position:fixed;bottom:2rem;right:2rem;z-index:200;
+    font-size:0.6rem;letter-spacing:0.15em;color:rgba(0,245,255,0.3);
+    text-align:right;pointer-events:none;
+  }
+  .hud-line{margin-bottom:0.2rem}
+  /* NOISE OVERLAY */
+  .noise{
+    position:fixed;top:0;left:0;width:100%;height:100%;
+    z-index:1;pointer-events:none;opacity:0.025;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  }
+  /* SCANLINE */
+  .scanline{
+    position:fixed;top:0;left:0;width:100%;height:100%;z-index:2;
+    pointer-events:none;
+    background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.03) 2px,rgba(0,0,0,0.03) 4px);
+  }
+  @media(max-width:768px){
+    nav{padding:1rem 1.5rem}
+    .nav-links{display:none}
+    #hero,#speakers,#agenda,#showcase,#tickets,footer{padding-left:1.5rem;padding-right:1.5rem}
+    .stats-bar{gap:2rem;padding:1.5rem}
+    .day-tab{flex-wrap:wrap}
+  }
+</style>
+</head>
+<body>
+
+<canvas id="canvas-bg"></canvas>
+<div class="noise"></div>
+<div class="scanline"></div>
+
+<div class="hud">
+  <div class="hud-line" id="hud-fps">60 FPS</div>
+  <div class="hud-line" id="hud-particles">0 NODES</div>
+  <div class="hud-line">SYS_OK</div>
+</div>
+
+<nav>
+  <div class="logo">TECHFEST</div>
+  <ul class="nav-links">
+    <li><a href="#speakers">Speakers</a></li>
+    <li><a href="#agenda">Agenda</a></li>
+    <li><a href="#showcase">3D Lab</a></li>
+    <li><a href="#tickets">Tickets</a></li>
+  </ul>
+  <button class="nav-cta" onclick="document.getElementById('tickets').scrollIntoView({behavior:'smooth'})">Register</button>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-eyebrow">December 12–14, 2026 · San Francisco</div>
+  <h1 class="hero-title">
+    <span class="line1">Tech</span>
+    <span class="line2">Fest</span>
+  </h1>
+  <div class="hero-year">2 0 2 6</div>
+  <p class="hero-sub">Three days. 200 speakers. One convergence point for the technology that's rewriting everything.</p>
+  <div class="hero-btns">
+    <button class="btn-primary" onclick="document.getElementById('tickets').scrollIntoView({behavior:'smooth'})">Claim Your Pass</button>
+    <button class="btn-secondary" onclick="document.getElementById('speakers').scrollIntoView({behavior:'smooth'})">View Speakers</button>
+  </div>
+  <div class="scroll-hint">
+    <span>SCROLL</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stat-item">
+    <div class="stat-num" id="cnt1">0</div>
+    <div class="stat-label">Speakers</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num" id="cnt2">0</div>
+    <div class="stat-label">Sessions</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num" id="cnt3">0</div>
+    <div class="stat-label">Attendees Expected</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num" id="cnt4">0</div>
+    <div class="stat-label">Countries</div>
+  </div>
+</div>
+
+<!-- SPEAKERS -->
+<section id="speakers">
+  <div class="section-header reveal">
+    <span class="section-eyebrow">Featured Voices</span>
+    <h2 class="section-title">Speakers</h2>
+  </div>
+  <div class="speakers-grid">
+    <div class="speaker-card reveal">
+      <div class="corner-cut"></div>
+      <div class="speaker-avatar">AK</div>
+      <div class="speaker-tag">AI/ML · Keynote</div>
+      <div class="speaker-name">Amara Krishnaswamy</div>
+      <div class="speaker-role">Chief Scientist, DeepMind</div>
+      <div class="speaker-topic">The architecture of general intelligence: moving beyond transformer paradigms</div>
+    </div>
+    <div class="speaker-card reveal">
+      <div class="corner-cut"></div>
+      <div class="speaker-avatar" style="color:var(--magenta);background:rgba(255,0,110,0.08)">JR</div>
+      <div class="speaker-tag">Robotics · Main Stage</div>
+      <div class="speaker-name">Jonas Reinholt</div>
+      <div class="speaker-role">CTO, Boston Dynamics</div>
+      <div class="speaker-topic">Embodied AI and the race to give machines proprioception</div>
+    </div>
+    <div class="speaker-card reveal">
+      <div class="corner-cut"></div>
+      <div class="speaker-avatar" style="color:var(--gold);background:rgba(255,214,10,0.08)">LC</div>
+      <div class="speaker-tag">Quantum · Workshop</div>
+      <div class="speaker-name">Léa Charpentier</div>
+      <div class="speaker-role">Head of Quantum, IBM Research</div>
+      <div class="speaker-topic">Error correction at scale: what 1000-qubit systems actually unlock</div>
+    </div>
+    <div class="speaker-card reveal">
+      <div class="corner-cut"></div>
+      <div class="speaker-avatar" style="color:#a78bfa;background:rgba(167,139,250,0.08)">MW</div>
+      <div class="speaker-tag">Biotech · Panel</div>
+      <div class="speaker-name">Marcus Wu</div>
+      <div class="speaker-role">Founder, Helix Bio</div>
+      <div class="speaker-topic">Programmable biology: CRISPR's next decade and synthetic organisms</div>
+    </div>
+    <div class="speaker-card reveal">
+      <div class="corner-cut"></div>
+      <div class="speaker-avatar" style="color:#34d399;background:rgba(52,211,153,0.08)">SO</div>
+      <div class="speaker-tag">Climate Tech · Keynote</div>
+      <div class="speaker-name">Sara Okonkwo</div>
+      <div class="speaker-role">CEO, Terraforming Earth</div>
+      <div class="speaker-topic">Direct air capture economics: the carbon removal tipping point</div>
+    </div>
+    <div class="speaker-card reveal">
+      <div class="corner-cut"></div>
+      <div class="speaker-avatar" style="color:#fb923c;background:rgba(251,146,60,0.08)">DM</div>
+      <div class="speaker-tag">Space · Main Stage</div>
+      <div class="speaker-name">Diego Martínez</div>
+      <div class="speaker-role">VP Engineering, SpaceX</div>
+      <div class="speaker-topic">Starship logistics: building the supply chain for multi-planetary life</div>
+    </div>
+  </div>
+</section>
+
+<!-- AGENDA -->
+<section id="agenda">
+  <div class="section-header reveal">
+    <span class="section-eyebrow">Schedule</span>
+    <h2 class="section-title">Agenda</h2>
+  </div>
+  <div class="agenda-container">
+    <div class="day-tab">
+      <button class="day-btn active" onclick="switchDay(0)">Day 1 · Dec 12</button>
+      <button class="day-btn" onclick="switchDay(1)">Day 2 · Dec 13</button>
+      <button class="day-btn" onclick="switchDay(2)">Day 3 · Dec 14</button>
+    </div>
+    <div class="agenda-day active" id="day-0">
+      <div class="agenda-item reveal">
+        <div class="agenda-time">09:00</div>
+        <div class="agenda-content">
+          <div class="agenda-track">Opening</div>
+          <div class="agenda-talk">Welcome to the Future — Opening Ceremony</div>
+          <div class="agenda-speaker">All Keynote Speakers</div>
+        </div>
+      </div>
+      <div class="agenda-item reveal">
+        <div class="agenda-time">10:30</div>
+        <div class="agenda-content">
+          <div class="agenda-track">AI/ML Track</div>
+          <div class="agenda-talk">The Architecture of General Intelligence</div>
+          <div class="agenda-speaker">Amara Krishnaswamy · DeepMind</div>
+        </div>
+      </div>
+      <div class="agenda-item reveal">
+        <div class="agenda-time">13:00</div>
+        <div class="agenda-content">
+          <div class="agenda-track">Workshop</div>
+          <div class="agenda-talk">Building with LLMs: From Prototype to Production</div>
+          <div class="agenda-speaker">Multiple Speakers</div>
+        </div>
+      </div>
+      <div class="agenda-item reveal">
+        <div class="agenda-time">15:30</div>
+        <div class="agenda-content">
+          <div class="agenda-track">Robotics Track</div>
+          <div class="agenda-talk">Embodied AI and Machine Proprioception</div>
+          <div class="agenda-speaker">Jonas Reinholt · Boston Dynamics</div>
+        </div>
+      </div>
+      <div class="agenda-item reveal">
+        <div class="agenda-time">18:00</div>
+        <div class="agenda-content">
+          <div class="agenda-track">Social</div>
+          <div class="agenda-talk">Opening Night Reception & Demo Hall</div>
+          <div class="agenda-speaker">All Attendees</div>
+        </div>
+      </div>
+    </div>
+    <div class="agenda-day" id="day-1">
+      <div class="agenda-item reveal">
+        <div class="agenda-time">09:30</div>
+        <div class="agenda-content">
+          <div class="agenda-track">Quantum Track</div>
+          <div class="agenda-talk">Error Correction at Scale: 1000-Qubit Systems</div>
+          <div class="agenda-speaker">Léa Charpentier · IBM Research</div>
+        </div>
+      </div>
+      <div class="agenda-item reveal">
+        <div class="agenda-time">11:00</div>
+        <div class="agenda-content">
+          <div class="agenda-track">Biotech Track</div>
+          <div class="agenda-talk">Programmable Biology: CRISPR's Next Decade</div>
+          <div class="agenda-speaker">Marcus Wu · Helix Bio</div>
+        </div>
+      </div>
+      <div class="agenda-item reveal">
+        <div class="agenda-time">14:00</div>
+        <div class="agenda-content">
+          <div class="agenda-track">Fireside Chat</div>
+          <div class="agenda-talk">The Ethics of Intelligence: Who Owns the Future?</div>
+          <div class="agenda-speaker">Panel Discussion</div>
+        </div>
+      </div>
+      <div class="agenda-item reveal">
+        <div class="agenda-time">16:30</div>
+        <div class="agenda-content">
+          <div class="agenda-track">Startup Showcase</div>
+          <div class="agenda-talk">Pitch Competition Finals</div>
+          <div class="agenda-speaker">50 Shortlisted Startups</div>
+        </div>
+      </div>
+    </div>
+    <div class="agenda-day" id="day-2">
+      <div class="agenda-item reveal">
+        <div class="agenda-time">09:00</div>
+        <div class="agenda-content">
+          <div class="agenda-track">Climate Tech</div>
+          <div class="agenda-talk">Direct Air Capture: The Carbon Tipping Point</div>
+          <div class="agenda-speaker">Sara Okonkwo · Terraforming Earth</div>
+        </div>
+      </div>
+      <div class="agenda-item reveal">
+        <div class="agenda-time">11:30</div>
+        <div class="agenda-content">
+          <div class="agenda-track">Space Track</div>
+          <div class="agenda-talk">Starship Logistics: Multi-Planetary Supply Chains</div>
+          <div class="agenda-speaker">Diego Martínez · SpaceX</div>
+        </div>
+      </div>
+      <div class="agenda-item reveal">
+        <div class="agenda-time">14:00</div>
+        <div class="agenda-content">
+          <div class="agenda-track">Closing Keynote</div>
+          <div class="agenda-talk">What Comes After the Intelligence Revolution</div>
+          <div class="agenda-speaker">All Speakers</div>
+        </div>
+      </div>
+      <div class="agenda-item reveal">
+        <div class="agenda-time">16:30</div>
+        <div class="agenda-content">
+          <div class="agenda-track">Closing</div>
+          <div class="agenda-talk">Awards Ceremony & Festival Close</div>
+          <div class="agenda-speaker">TechFest Team</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3D SHOWCASE -->
+<section id="showcase">
+  <div class="section-header reveal">
+    <span class="section-eyebrow">Interactive 3D Lab</span>
+    <h2 class="section-title">Explore the Tech</h2>
+  </div>
+  <p style="color:rgba(255,255,255,0.3);font-size:0.8rem;letter-spacing:0.1em">Drag to rotate · Scroll to zoom · Click shapes to transform</p>
+  <div class="showcase-canvas-wrap">
+    <canvas id="showcase-canvas"></canvas>
+  </div>
+  <div class="showcase-controls">
+    <button class="ctrl-btn active" onclick="setShowcaseMode(0,this)">Neural Net</button>
+    <button class="ctrl-btn" onclick="setShowcaseMode(1,this)">Quantum Field</button>
+    <button class="ctrl-btn" onclick="setShowcaseMode(2,this)">DNA Helix</button>
+    <button class="ctrl-btn" onclick="setShowcaseMode(3,this)">Warp Drive</button>
+  </div>
+</section>
+
+<!-- TICKETS -->
+<section id="tickets">
+  <div class="section-header reveal">
+    <span class="section-eyebrow">Join Us</span>
+    <h2 class="section-title">Get Your Pass</h2>
+  </div>
+  <div class="tickets-grid">
+    <div class="ticket-card reveal">
+      <div class="ticket-tier">Explorer</div>
+      <div class="ticket-price"><span>$</span>299</div>
+      <div class="ticket-desc">Full access to main stage sessions and demo hall</div>
+      <ul class="ticket-features">
+        <li>3-day main stage access</li>
+        <li>Demo hall & expo floor</li>
+        <li>Opening night reception</li>
+        <li>Digital session recordings</li>
+      </ul>
+      <button class="ticket-btn">Register — Explorer</button>
+    </div>
+    <div class="ticket-card featured reveal">
+      <div class="ticket-badge">Most Popular</div>
+      <div class="ticket-tier">Builder</div>
+      <div class="ticket-price"><span>$</span>599</div>
+      <div class="ticket-desc">Everything in Explorer plus workshops and networking dinners</div>
+      <ul class="ticket-features">
+        <li>All Explorer benefits</li>
+        <li>Workshop track access</li>
+        <li>Networking dinners (2)</li>
+        <li>Speaker Q&A sessions</li>
+        <li>TechFest Hackathon entry</li>
+      </ul>
+      <button class="ticket-btn">Register — Builder</button>
+    </div>
+    <div class="ticket-card reveal">
+      <div class="ticket-tier">Founder</div>
+      <div class="ticket-price"><span>$</span>1,299</div>
+      <div class="ticket-desc">VIP access, speaker dinners, and dedicated networking suite</div>
+      <ul class="ticket-features">
+        <li>All Builder benefits</li>
+        <li>VIP lounge access</li>
+        <li>Speaker dinner invitations</li>
+        <li>1:1 meeting scheduling</li>
+        <li>Priority seating all sessions</li>
+        <li>Early access 2027 tickets</li>
+      </ul>
+      <button class="ticket-btn">Register — Founder</button>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">TECHFEST</div>
+  <div class="footer-links">
+    <a href="#">About</a>
+    <a href="#">Sponsors</a>
+    <a href="#">Press</a>
+    <a href="#">Code of Conduct</a>
+    <a href="#">Contact</a>
+  </div>
+  <div class="footer-copy">© 2026 TECHFEST · San Francisco · Dec 12–14</div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// ── BACKGROUND 3D SCENE ──────────────────────────────────────────────
+const bgCanvas = document.getElementById('canvas-bg');
+const bgRenderer = new THREE.WebGLRenderer({canvas:bgCanvas,antialias:true,alpha:true});
+bgRenderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+bgRenderer.setSize(window.innerWidth,window.innerHeight);
+
+const bgScene = new THREE.Scene();
+const bgCamera = new THREE.PerspectiveCamera(75,window.innerWidth/window.innerHeight,0.1,1000);
+bgCamera.position.z = 60;
+
+// Grid of glowing points
+const ptGeo = new THREE.BufferGeometry();
+const ptCount = 2000;
+const positions = new Float32Array(ptCount*3);
+const colors = new Float32Array(ptCount*3);
+for(let i=0;i<ptCount;i++){
+  positions[i*3]=(Math.random()-0.5)*200;
+  positions[i*3+1]=(Math.random()-0.5)*200;
+  positions[i*3+2]=(Math.random()-0.5)*200;
+  const t=Math.random();
+  if(t<0.33){colors[i*3]=0;colors[i*3+1]=0.96;colors[i*3+2]=1;}
+  else if(t<0.66){colors[i*3]=1;colors[i*3+1]=0;colors[i*3+2]=0.43;}
+  else{colors[i*3]=1;colors[i*3+1]=0.84;colors[i*3+2]=0.04;}
+}
+ptGeo.setAttribute('position',new THREE.BufferAttribute(positions,3));
+ptGeo.setAttribute('color',new THREE.BufferAttribute(colors,3));
+const ptMat = new THREE.PointsMaterial({size:0.4,vertexColors:true,transparent:true,opacity:0.7});
+const ptMesh = new THREE.Points(ptGeo,ptMat);
+bgScene.add(ptMesh);
+
+// Floating geometric shapes in background
+const bgShapes=[];
+const shapeMats=[
+  new THREE.MeshBasicMaterial({color:0x00f5ff,wireframe:true,transparent:true,opacity:0.08}),
+  new THREE.MeshBasicMaterial({color:0xff006e,wireframe:true,transparent:true,opacity:0.06}),
+  new THREE.MeshBasicMaterial({color:0xffd60a,wireframe:true,transparent:true,opacity:0.05}),
+];
+for(let i=0;i<12;i++){
+  const geo=[
+    new THREE.IcosahedronGeometry(Math.random()*4+2,0),
+    new THREE.OctahedronGeometry(Math.random()*3+2,0),
+    new THREE.TetrahedronGeometry(Math.random()*3+2,0),
+  ][Math.floor(Math.random()*3)];
+  const mesh=new THREE.Mesh(geo,shapeMats[Math.floor(Math.random()*3)]);
+  mesh.position.set((Math.random()-0.5)*100,(Math.random()-0.5)*80,(Math.random()-0.5)*40-20);
+  mesh.userData={rx:Math.random()*0.005-0.0025,ry:Math.random()*0.008-0.004,rz:Math.random()*0.003};
+  bgScene.add(mesh);bgShapes.push(mesh);
+}
+
+// Scroll-parallax
+let scrollY=0;
+window.addEventListener('scroll',()=>{scrollY=window.scrollY;});
+
+// FPS counter
+let lastTime=performance.now();let frameCount=0;let fps=60;
+function updateFPS(){
+  const now=performance.now();frameCount++;
+  if(now-lastTime>=1000){fps=Math.round(frameCount*1000/(now-lastTime));frameCount=0;lastTime=now;document.getElementById('hud-fps').textContent=fps+' FPS';}
+}
+
+function animateBG(){
+  requestAnimationFrame(animateBG);
+  updateFPS();
+  const t=Date.now()*0.001;
+  ptMesh.rotation.y=t*0.02;
+  ptMesh.rotation.x=t*0.01;
+  bgCamera.position.y=-scrollY*0.03;
+  bgCamera.position.x=Math.sin(t*0.2)*2;
+  bgShapes.forEach(m=>{m.rotation.x+=m.userData.rx;m.rotation.y+=m.userData.ry;m.rotation.z+=m.userData.rz;});
+  bgRenderer.render(bgScene,bgCamera);
+}
+animateBG();
+document.getElementById('hud-particles').textContent=ptCount+' NODES';
+
+// ── SHOWCASE 3D SCENE ─────────────────────────────────────────────────
+const scCanvas=document.getElementById('showcase-canvas');
+const scRenderer=new THREE.WebGLRenderer({canvas:scCanvas,antialias:true,alpha:true});
+scRenderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+
+function resizeShowcase(){
+  const w=scCanvas.parentElement.clientWidth;
+  const h=scCanvas.parentElement.clientHeight;
+  scRenderer.setSize(w,h);
+  scCamera.aspect=w/h;
+  scCamera.updateProjectionMatrix();
+}
+const scScene=new THREE.Scene();
+const scCamera=new THREE.PerspectiveCamera(60,1,0.1,1000);
+scCamera.position.z=18;
+resizeShowcase();
+
+// Ambient + point lights
+scScene.add(new THREE.AmbientLight(0xffffff,0.3));
+const pl1=new THREE.PointLight(0x00f5ff,2,40);pl1.position.set(10,10,10);scScene.add(pl1);
+const pl2=new THREE.PointLight(0xff006e,1.5,40);pl2.position.set(-10,-5,5);scScene.add(pl2);
+const pl3=new THREE.PointLight(0xffd60a,1,30);pl3.position.set(0,10,-5);scScene.add(pl3);
+
+let showcaseGroup=new THREE.Group();scScene.add(showcaseGroup);
+let scMode=0;
+
+function clearShowcase(){
+  while(showcaseGroup.children.length>0){showcaseGroup.remove(showcaseGroup.children[0]);}
+}
+
+// MODE 0: Neural Network
+function buildNeuralNet(){
+  clearShowcase();
+  const layers=[4,6,8,6,4];
+  const nodes=[];
+  const nodeMat=new THREE.MeshPhongMaterial({color:0x00f5ff,emissive:0x004466,shininess:100});
+  const nodeMat2=new THREE.MeshPhongMaterial({color:0xff006e,emissive:0x440022,shininess:100});
+  layers.forEach((count,li)=>{
+    for(let ni=0;ni<count;ni++){
+      const geo=new THREE.SphereGeometry(0.3,16,16);
+      const mat=li===2?nodeMat2:nodeMat;
+      const mesh=new THREE.Mesh(geo,mat);
+      mesh.position.set((li-2)*4,(ni-(count-1)/2)*2,0);
+      showcaseGroup.add(mesh);nodes.push({mesh,layer:li,idx:ni});
+    }
+  });
+  // Connections
+  const lineMat=new THREE.LineBasicMaterial({color:0x006677,transparent:true,opacity:0.25});
+  for(let i=0;i<nodes.length;i++){
+    if(nodes[i].layer===nodes.length-1)continue;
+    const next=nodes.filter(n=>n.layer===nodes[i].layer+1);
+    next.forEach(n2=>{
+      const geo=new THREE.BufferGeometry().setFromPoints([nodes[i].mesh.position,n2.mesh.position]);
+      showcaseGroup.add(new THREE.Line(geo,lineMat));
+    });
+  }
+}
+
+// MODE 1: Quantum Field (particle system)
+function buildQuantumField(){
+  clearShowcase();
+  const count=500;
+  const geo=new THREE.BufferGeometry();
+  const pos=new Float32Array(count*3);
+  const col=new Float32Array(count*3);
+  for(let i=0;i<count;i++){
+    const r=Math.random()*8;
+    const theta=Math.random()*Math.PI*2;
+    const phi=Math.acos(2*Math.random()-1);
+    pos[i*3]=r*Math.sin(phi)*Math.cos(theta);
+    pos[i*3+1]=r*Math.sin(phi)*Math.sin(theta);
+    pos[i*3+2]=r*Math.cos(phi);
+    const t=Math.random();
+    if(t<0.5){col[i*3]=0;col[i*3+1]=0.96;col[i*3+2]=1;}
+    else{col[i*3]=1;col[i*3+1]=0;col[i*3+2]=0.43;}
+  }
+  geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
+  geo.setAttribute('color',new THREE.BufferAttribute(col,3));
+  const mat=new THREE.PointsMaterial({size:0.2,vertexColors:true,transparent:true,opacity:0.9});
+  const pts=new THREE.Points(geo,mat);
+  pts.userData={type:'quantum',pos};showcaseGroup.add(pts);
+  // Central orb
+  const orb=new THREE.Mesh(new THREE.IcosahedronGeometry(1.5,2),new THREE.MeshPhongMaterial({color:0xff006e,emissive:0x330011,shininess:200,transparent:true,opacity:0.85}));
+  showcaseGroup.add(orb);
+}
+
+// MODE 2: DNA Helix
+function buildDNAHelix(){
+  clearShowcase();
+  const steps=40;
+  const matA=new THREE.MeshPhongMaterial({color:0x00f5ff,emissive:0x003344,shininess:150});
+  const matB=new THREE.MeshPhongMaterial({color:0xff006e,emissive:0x330011,shininess:150});
+  const matRod=new THREE.MeshPhongMaterial({color:0xffd60a,emissive:0x332200,shininess:80,transparent:true,opacity:0.6});
+  for(let i=0;i<steps;i++){
+    const t=i/steps;
+    const angle=t*Math.PI*6;
+    const y=(t-0.5)*16;
+    const r=3;
+    // Strand A
+    const sA=new THREE.Mesh(new THREE.SphereGeometry(0.35,16,16),matA);
+    sA.position.set(Math.cos(angle)*r,y,Math.sin(angle)*r);
+    showcaseGroup.add(sA);
+    // Strand B
+    const sB=new THREE.Mesh(new THREE.SphereGeometry(0.35,16,16),matB);
+    sB.position.set(Math.cos(angle+Math.PI)*r,y,Math.sin(angle+Math.PI)*r);
+    showcaseGroup.add(sB);
+    // Rung (every 3)
+    if(i%3===0){
+      const diff=new THREE.Vector3().subVectors(sB.position,sA.position);
+      const len=diff.length();
+      const rod=new THREE.Mesh(new THREE.CylinderGeometry(0.08,0.08,len,8),matRod);
+      rod.position.copy(sA.position).lerp(sB.position,0.5);
+      rod.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),diff.normalize());
+      showcaseGroup.add(rod);
+    }
+  }
+}
+
+// MODE 3: Warp Drive (rings + core)
+function buildWarpDrive(){
+  clearShowcase();
+  const ringMat=new THREE.MeshBasicMaterial({color:0x00f5ff,wireframe:true,transparent:true,opacity:0.6});
+  const coreMat=new THREE.MeshPhongMaterial({color:0xffd60a,emissive:0x332200,shininess:200});
+  for(let i=0;i<12;i++){
+    const r=2+i*0.8;
+    const ring=new THREE.Mesh(new THREE.TorusGeometry(r,0.05,8,64),ringMat);
+    ring.rotation.x=Math.random()*Math.PI;ring.rotation.y=Math.random()*Math.PI;
+    ring.userData={rx:Math.random()*0.01-0.005,ry:Math.random()*0.02-0.01};
+    showcaseGroup.add(ring);
+  }
+  const core=new THREE.Mesh(new THREE.IcosahedronGeometry(1.2,2),coreMat);
+  showcaseGroup.add(core);
+  // Starlines
+  const slGeo=new THREE.BufferGeometry();
+  const slPos=[];
+  for(let i=0;i<200;i++){
+    const theta=Math.random()*Math.PI*2;
+    const phi=Math.acos(2*Math.random()-1);
+    const r=8+Math.random()*5;
+    const x=r*Math.sin(phi)*Math.cos(theta);
+    const y=r*Math.sin(phi)*Math.sin(theta);
+    const z=r*Math.cos(phi);
+    slPos.push(x,y,z,x*(1-Math.random()*0.3),y*(1-Math.random()*0.3),z*(1-Math.random()*0.3));
+  }
+  slGeo.setAttribute('position',new THREE.BufferAttribute(new Float32Array(slPos),3));
+  showcaseGroup.add(new THREE.LineSegments(slGeo,new THREE.LineBasicMaterial({color:0x00f5ff,transparent:true,opacity:0.3})));
+}
+
+buildNeuralNet();
+
+function setShowcaseMode(m,btn){
+  scMode=m;
+  document.querySelectorAll('.ctrl-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  if(m===0)buildNeuralNet();
+  else if(m===1)buildQuantumField();
+  else if(m===2)buildDNAHelix();
+  else buildWarpDrive();
+}
+
+// Showcase mouse drag
+let isDragging=false,lastMX=0,lastMY=0;
+scCanvas.addEventListener('mousedown',e=>{isDragging=true;lastMX=e.clientX;lastMY=e.clientY;});
+window.addEventListener('mouseup',()=>isDragging=false);
+window.addEventListener('mousemove',e=>{
+  if(!isDragging)return;
+  const dx=e.clientX-lastMX;const dy=e.clientY-lastMY;
+  showcaseGroup.rotation.y+=dx*0.01;showcaseGroup.rotation.x+=dy*0.01;
+  lastMX=e.clientX;lastMY=e.clientY;
+});
+scCanvas.addEventListener('wheel',e=>{
+  scCamera.position.z=Math.max(6,Math.min(30,scCamera.position.z+e.deltaY*0.02));
+});
+// Touch support
+let lastTX=0,lastTY=0;
+scCanvas.addEventListener('touchstart',e=>{const t=e.touches[0];lastTX=t.clientX;lastTY=t.clientY;});
+scCanvas.addEventListener('touchmove',e=>{
+  const t=e.touches[0];
+  const dx=t.clientX-lastTX;const dy=t.clientY-lastTY;
+  showcaseGroup.rotation.y+=dx*0.01;showcaseGroup.rotation.x+=dy*0.01;
+  lastTX=t.clientX;lastTY=t.clientY;
+});
+
+let scT=0;
+function animateShowcase(){
+  requestAnimationFrame(animateShowcase);
+  scT+=0.01;
+  if(!isDragging){
+    showcaseGroup.rotation.y+=0.003;
+  }
+  // Mode-specific animations
+  if(scMode===1){
+    const pts=showcaseGroup.children[0];
+    if(pts&&pts.userData.type==='quantum'){
+      const pos=pts.geometry.attributes.position.array;
+      for(let i=0;i<pos.length/3;i++){
+        pos[i*3+1]+=Math.sin(scT+i*0.5)*0.005;
+      }
+      pts.geometry.attributes.position.needsUpdate=true;
+    }
+  }
+  if(scMode===3){
+    showcaseGroup.children.forEach(m=>{
+      if(m.userData.rx)m.rotation.x+=m.userData.rx,m.rotation.y+=m.userData.ry;
+    });
+  }
+  pl1.position.x=Math.sin(scT)*8;pl1.position.y=Math.cos(scT*0.7)*5;
+  pl2.position.x=Math.cos(scT*0.8)*8;pl2.position.z=Math.sin(scT*0.6)*6;
+  scRenderer.render(scScene,scCamera);
+}
+animateShowcase();
+
+// ── RESIZE ────────────────────────────────────────────────────────────
+window.addEventListener('resize',()=>{
+  bgRenderer.setSize(window.innerWidth,window.innerHeight);
+  bgCamera.aspect=window.innerWidth/window.innerHeight;bgCamera.updateProjectionMatrix();
+  resizeShowcase();
+});
+
+// ── SCROLL REVEAL ─────────────────────────────────────────────────────
+const revealEls=document.querySelectorAll('.reveal');
+const revealObserver=new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');}});
+},{threshold:0.1});
+revealEls.forEach(el=>revealObserver.observe(el));
+
+// ── COUNTER ANIMATION ─────────────────────────────────────────────────
+function animateCount(el,target,suffix=''){
+  let current=0;const step=target/60;
+  const timer=setInterval(()=>{
+    current+=step;
+    if(current>=target){current=target;clearInterval(timer);}
+    el.textContent=Math.round(current)+(suffix||'');
+  },16);
+}
+const counterObserver=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      animateCount(document.getElementById('cnt1'),200);
+      animateCount(document.getElementById('cnt2'),120);
+      animateCount(document.getElementById('cnt3'),8000);
+      animateCount(document.getElementById('cnt4'),48);
+      counterObserver.disconnect();
+    }
+  });
+},{threshold:0.5});
+counterObserver.observe(document.querySelector('.stats-bar'));
+
+// ── DAY SWITCHER ──────────────────────────────────────────────────────
+function switchDay(d){
+  document.querySelectorAll('.agenda-day').forEach((el,i)=>{el.classList.toggle('active',i===d);});
+  document.querySelectorAll('.day-btn').forEach((btn,i)=>{btn.classList.toggle('active',i===d);});
+}
+
+// ── CURSOR GLOW ───────────────────────────────────────────────────────
+const glow=document.createElement('div');
+glow.style.cssText='position:fixed;width:300px;height:300px;pointer-events:none;z-index:0;border-radius:50%;background:radial-gradient(circle,rgba(0,245,255,0.04) 0%,transparent 70%);transform:translate(-50%,-50%);transition:left 0.1s,top 0.1s';
+document.body.appendChild(glow);
+document.addEventListener('mousemove',e=>{glow.style.left=e.clientX+'px';glow.style.top=e.clientY+'px';});
+</script>
+</body>
+</html>
